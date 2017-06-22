@@ -33,7 +33,7 @@ public class NetworkUtils
 
     private final static String PARAM_API_KEY = "apiKey";
     // NOTE: add your api key in the apiKey variable. For safety reason, i will not post my api key in here since the homework and, most importantly, my key would have been posted up on github
-    private final static String apiKey = "xxxxxxxxx";
+    private final static String apiKey = "Input Api key here";
 
     public static URL buildUrl(String SearchQuery)
     {
