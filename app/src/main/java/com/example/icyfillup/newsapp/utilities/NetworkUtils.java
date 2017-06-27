@@ -40,7 +40,7 @@ public class NetworkUtils
 
     private final static String PARAM_API_KEY = "apiKey";
     // NOTE: add your api key in the apiKey variable. For safety reason, i will not post my api key in here since the homework and, most importantly, my key would have been posted up on github
-    private final static String apiKey = "Input Api key here";
+    private final static String apiKey = "ad6126fbfc294491b44536c35001ea29";
 
     public static URL buildUrl(String SearchQuery)
     {
@@ -86,10 +86,56 @@ public class NetworkUtils
     }
 
     public static ArrayList<NewsItem> getNewsItemsFromJson(String NewsItemsFromString) throws JSONException {
+        final String NIA_STATUS = "status";
+        final String NIA_ERROR_CODE = "code";
+        final String NIA_ARTICLES = "articles";
+        final String NIA_TITLE = "title";
+        final String NIA_DESCRIPTION = "description";
+        final String NIA_TIME_AT = "publishedAt";
+
+
         ArrayList<NewsItem> Result = new ArrayList<NewsItem>();
 
         JSONObject NewsItemsJson = new JSONObject(NewsItemsFromString);
 
+        if(NewsItemsJson.has(NIA_STATUS))
+        {
+            String errorMessage = NewsItemsJson.getString(NIA_STATUS);
+            switch(errorMessage)
+            {
+                case "ok":
+                    break;
+                case "error":
+                    String errorCode = NewsItemsJson.getString(NIA_ERROR_CODE);
+                    Log.d(TAG, "getNewsItemsFromJson: Error Code->" + errorCode);
+                    return null;
+                default :
+                    return null;
+            }
+        }
+
+        JSONArray ArticlesJSON = NewsItemsJson.getJSONArray(NIA_ARTICLES);
+        int NumOfArticles = ArticlesJSON.length();
+
+        for(int i = 0; i < NumOfArticles; i++)
+        {
+            JSONObject Article = ArticlesJSON.getJSONObject(i);
+            String title = Article.getString(NIA_TITLE);
+            String description = Article.getString(NIA_DESCRIPTION);
+            String date = Article.getString(NIA_TIME_AT);
+
+            URL url = null;
+
+            try
+            {
+                url = new URL(Article.getString("url"));
+            }catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+
+            Result.add(new NewsItem(title, description, date, url));
+        }
         return Result;
     }
 }

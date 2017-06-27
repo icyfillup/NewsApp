@@ -12,13 +12,22 @@ public class NewsItem {
     private String Title;
     private String Description;
     private URL url;
+    private String date;
 
-    public NewsItem(String Title, String Description, URL url) {
+    public NewsItem(String Title, String Description, String Date, URL url) {
         this.Title = Title;
         this.Description = Description;
         this.url = url;
+        this.date = date;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
     public String getTitle() {
         return Title;
     }

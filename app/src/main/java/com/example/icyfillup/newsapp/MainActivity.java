@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.icyfillup.newsapp.utilities.NetworkUtils;
 
+import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -66,8 +67,14 @@ public class MainActivity extends AppCompatActivity {
             try
             {
                 JsonNewsApiResponse = NetworkUtils.getResponseFromHttpUrl(NewsApiUrl);
+                NetworkUtils.getNewsItemsFromJson(JsonNewsApiResponse);
                 Log.d(TAG, "doInBackground: " + JsonNewsApiResponse);
-            }catch(IOException e)
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            catch(JSONException e)
             {
                 e.printStackTrace();
             };
