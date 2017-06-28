@@ -1,6 +1,7 @@
 package com.example.icyfillup.newsapp;
 
 import android.content.Context;
+import android.net.sip.SipAudioCall;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +17,15 @@ import java.util.ArrayList;
 public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiAdapterViewHolder> {
 
     private ArrayList<NewsItem> NewsArticles;
+    private OpenUrlLinkToBrowser OnClickListener;
 
-    public NewsApiAdapter() {
+    public NewsApiAdapter(OpenUrlLinkToBrowser Listener) {
+        OnClickListener = Listener;
+    }
 
+    public interface OpenUrlLinkToBrowser
+    {
+        void onItemClick();
     }
 
     @Override
@@ -54,7 +61,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
     }
 
 
-    class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder {
+    class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final public TextView NewsTitle;
         final public TextView NewsDescription;
         final public TextView NewsTime;
@@ -66,6 +73,12 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
             NewsTitle = (TextView) itemView.findViewById(R.id.news_title);
             NewsDescription = (TextView) itemView.findViewById(R.id.news_description);
             NewsTime = (TextView) itemView.findViewById(R.id.news_time);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            OnClickListener.onItemClick();
         }
     }
 }

@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.icyfillup.newsapp.utilities.NetworkUtils;
 
@@ -23,7 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NewsApiAdapter.OpenUrlLinkToBrowser {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private NewsApiAdapter adapter;
     private RecyclerView recyclerView;
+
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setHasFixedSize(true);
 
-        adapter = new NewsApiAdapter();
+        adapter = new NewsApiAdapter(this);
         recyclerView.setAdapter(adapter);
 
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
@@ -64,6 +67,19 @@ public class MainActivity extends AppCompatActivity {
             new FetchNewsTask().execute("hello");
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick() {
+        if(mToast != null)
+        {
+            mToast.cancel();
+        }
+
+        String TextMessage = "TODO: open url link here";
+        mToast = Toast.makeText(this, TextMessage, Toast.LENGTH_LONG);
+
+        mToast.show();
     }
 
     class FetchNewsTask extends AsyncTask<String, Void, ArrayList<NewsItem>>
