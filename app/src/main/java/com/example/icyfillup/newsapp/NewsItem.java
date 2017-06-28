@@ -18,7 +18,7 @@ public class NewsItem {
         this.Title = Title;
         this.Description = Description;
         this.url = url;
-        this.date = date;
+        this.date = Date;
     }
 
     public String getDate() {

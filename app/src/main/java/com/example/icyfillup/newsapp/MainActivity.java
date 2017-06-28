@@ -3,6 +3,8 @@ package com.example.icyfillup.newsapp;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,22 +18,34 @@ import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    TextView NewsApiTextView;
     ProgressBar progressBar;
+
+    private NewsApiAdapter adapter;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NewsApiTextView = (TextView) findViewById(R.id.news_api);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerview_newsapi);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+
+        recyclerView.setHasFixedSize(true);
+
+        adapter = new NewsApiAdapter();
+        recyclerView.setAdapter(adapter);
+
         progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
     }
 
@@ -46,12 +60,13 @@ public class MainActivity extends AppCompatActivity {
         int ItemSelectedId = item.getItemId();
         if(ItemSelectedId == R.id.action_search)
         {
+            adapter.setNewsArticles(null);
             new FetchNewsTask().execute("hello");
         }
         return super.onOptionsItemSelected(item);
     }
 
-    class FetchNewsTask extends AsyncTask<String, Void, String>
+    class FetchNewsTask extends AsyncTask<String, Void, ArrayList<NewsItem>>
     {
         @Override
         protected void onPreExecute() {
@@ -60,14 +75,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected ArrayList<NewsItem> doInBackground(String... strings) {
             String SearchQuery = strings[0];
             URL NewsApiUrl = NetworkUtils.buildUrl(SearchQuery);
+
+            ArrayList<NewsItem> NewsArticles = null;
+
             String JsonNewsApiResponse = null;
             try
             {
                 JsonNewsApiResponse = NetworkUtils.getResponseFromHttpUrl(NewsApiUrl);
-                NetworkUtils.getNewsItemsFromJson(JsonNewsApiResponse);
+                NewsArticles = NetworkUtils.getNewsItemsFromJson(JsonNewsApiResponse);
                 Log.d(TAG, "doInBackground: " + JsonNewsApiResponse);
             }
             catch(IOException e)
@@ -78,18 +96,18 @@ public class MainActivity extends AppCompatActivity {
             {
                 e.printStackTrace();
             };
-            return JsonNewsApiResponse;
+            return NewsArticles;
         }
 
         @Override
-        protected void onPostExecute(String string) {
+        protected void onPostExecute(ArrayList<NewsItem> NewsArticles) {
             progressBar.setVisibility(View.INVISIBLE);
-            if(string != null && !string.isEmpty())
+            if(NewsArticles != null && !NewsArticles.isEmpty())
             {
-                NewsApiTextView.setText(string.toString());
+                adapter.setNewsArticles(NewsArticles);
             }
 
-            super.onPostExecute(string);
+            super.onPostExecute(NewsArticles);
         }
     }
 }
