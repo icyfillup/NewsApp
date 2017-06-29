@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -25,7 +26,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
 
     public interface OpenUrlLinkToBrowser
     {
-        void onItemClick();
+        void onItemClick(URL link);
     }
 
     @Override
@@ -60,7 +61,6 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         notifyDataSetChanged();
     }
 
-
     class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final public TextView NewsTitle;
         final public TextView NewsDescription;
@@ -77,8 +77,10 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         }
 
         @Override
-        public void onClick(View view) {
-            OnClickListener.onItemClick();
+        public void onClick(View view)
+        {
+            NewsItem Article = NewsArticles.get(getAdapterPosition());
+            OnClickListener.onItemClick(Article.getUrl());
         }
     }
 }

@@ -28,6 +28,7 @@ public class NewsItem {
     public void setDate(String date) {
         this.date = date;
     }
+
     public String getTitle() {
         return Title;
     }

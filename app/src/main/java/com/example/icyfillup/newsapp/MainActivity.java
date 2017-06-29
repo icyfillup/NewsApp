@@ -70,13 +70,14 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
     }
 
     @Override
-    public void onItemClick() {
+    public void onItemClick(URL link) {
         if(mToast != null)
         {
             mToast.cancel();
         }
 
-        String TextMessage = "TODO: open url link here";
+        String TextMessage = link.toString();
+
         mToast = Toast.makeText(this, TextMessage, Toast.LENGTH_LONG);
 
         mToast.show();
