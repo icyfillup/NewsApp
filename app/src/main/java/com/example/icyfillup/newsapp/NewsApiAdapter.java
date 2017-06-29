@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -26,7 +27,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
 
     public interface OpenUrlLinkToBrowser
     {
-        void onItemClick(URL link);
+        void onItemClick(URL UriLink);
     }
 
     @Override
@@ -79,7 +80,8 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         @Override
         public void onClick(View view)
         {
-            NewsItem Article = NewsArticles.get(getAdapterPosition());
+            int index = getAdapterPosition();
+            NewsItem Article = NewsArticles.get(index);
             OnClickListener.onItemClick(Article.getUrl());
         }
     }

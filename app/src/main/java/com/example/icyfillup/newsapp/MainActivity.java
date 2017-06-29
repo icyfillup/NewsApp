@@ -1,5 +1,7 @@
 package com.example.icyfillup.newsapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -32,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
     private NewsApiAdapter adapter;
     private RecyclerView recyclerView;
-
-    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +71,15 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
     }
 
     @Override
-    public void onItemClick(URL link) {
-        if(mToast != null)
+    public void onItemClick(URL UrlLink){
+        Uri UriLink = Uri.parse(UrlLink.toString());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, UriLink);
+
+        if(intent.resolveActivity(getPackageManager()) != null)
         {
-            mToast.cancel();
+            startActivity(intent);
         }
-
-        String TextMessage = link.toString();
-
-        mToast = Toast.makeText(this, TextMessage, Toast.LENGTH_LONG);
-
-        mToast.show();
     }
 
     class FetchNewsTask extends AsyncTask<String, Void, ArrayList<NewsItem>>
