@@ -1,6 +1,7 @@
 package com.example.icyfillup.newsapp;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.sip.SipAudioCall;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.icyfillup.newsapp.data.ArticleContract;
+
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,11 +22,12 @@ import java.util.ArrayList;
 
 public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiAdapterViewHolder> {
 
-    private ArrayList<NewsItem> NewsArticles;
     private OpenUrlLinkToBrowser OnClickListener;
+    private Cursor cursor;
 
-    public NewsApiAdapter(OpenUrlLinkToBrowser Listener) {
+    public NewsApiAdapter(OpenUrlLinkToBrowser Listener, Cursor cursor) {
         OnClickListener = Listener;
+        this.cursor = cursor;
     }
 
     public interface OpenUrlLinkToBrowser
@@ -42,24 +47,33 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
 
     @Override
     public void onBindViewHolder(NewsApiAdapterViewHolder holder, int position) {
-        holder.NewsTitle.setText(NewsArticles.get(position).getTitle());
-        holder.NewsDescription.setText(NewsArticles.get(position).getDescription());
-        holder.NewsTime.setText(NewsArticles.get(position).getDate());
+        if(!cursor.moveToPosition(position))
+        {
+            return;
+        }
+
+        String title = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_TITLE));
+        String description = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_DESCRIPTION));
+        String date = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_DATE));
+
+        holder.NewsTitle.setText(title);
+        holder.NewsDescription.setText(description);
+        holder.NewsTime.setText(date);
     }
 
     @Override
     public int getItemCount() {
-        if(NewsArticles == null)
-        {
-            return 0;
-        }
-        return NewsArticles.size();
+        return cursor.getCount();
     }
 
-    public void setNewsArticles(ArrayList<NewsItem> Articles)
-    {
-        NewsArticles = Articles;
-        notifyDataSetChanged();
+    public void swapCursor(Cursor newCursor) {
+        // Always close the previous mCursor first
+        if (cursor != null) cursor.close();
+        cursor = newCursor;
+        if (newCursor != null) {
+            // Force the RecyclerView to refresh
+            this.notifyDataSetChanged();
+        }
     }
 
     class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -81,8 +95,15 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         public void onClick(View view)
         {
             int index = getAdapterPosition();
-            NewsItem Article = NewsArticles.get(index);
-            OnClickListener.onItemClick(Article.getUrl());
+            cursor.moveToPosition(index);
+            String articleUrl = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_URL));
+            try {
+                URL url = new URL(articleUrl);
+                OnClickListener.onItemClick(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

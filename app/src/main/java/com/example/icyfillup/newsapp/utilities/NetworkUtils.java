@@ -40,9 +40,9 @@ public class NetworkUtils
 
     private final static String PARAM_API_KEY = "apiKey";
     // NOTE: add your api key in the apiKey variable. For safety reason, i will not post my api key in here since the homework and, most importantly, my key would have been posted up on github
-    private final static String apiKey = "Input your key here";
+    private final static String apiKey = "ad6126fbfc294491b44536c35001ea29";
 
-    public static URL buildUrl(String SearchQuery)
+    public static URL buildUrl()
     {
         // SearchQuery is not going to be used to build the link
         Uri uri = Uri.parse(BASE_URL).buildUpon().

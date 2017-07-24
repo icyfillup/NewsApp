@@ -1,45 +1,46 @@
 package com.example.icyfillup.newsapp;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.icyfillup.newsapp.utilities.NetworkUtils;
+import com.example.icyfillup.newsapp.data.ArticleDbHelper;
+import com.example.icyfillup.newsapp.utilities.DatabaseUtils;
 
-import org.json.JSONException;
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements NewsApiAdapter.OpenUrlLinkToBrowser {
+public class MainActivity extends AppCompatActivity implements NewsApiAdapter.OpenUrlLinkToBrowser, LoaderManager.LoaderCallbacks<Void> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int NEWS_APP_LOADER_ID = 22;
 
     ProgressBar progressBar;
 
     private NewsApiAdapter adapter;
     private RecyclerView recyclerView;
 
+    private Cursor cursor;
+    private SQLiteDatabase articleDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview_newsapi);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -47,10 +48,28 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
         recyclerView.setHasFixedSize(true);
 
-        adapter = new NewsApiAdapter(this);
-        recyclerView.setAdapter(adapter);
+        ScheduleUtils.scheduleRefresh(this);
 
-        progressBar = (ProgressBar) findViewById(R.id.loading_indicator);
+        getSupportLoaderManager().initLoader(NEWS_APP_LOADER_ID, null, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        ArticleDbHelper dbHelper = new ArticleDbHelper(this);
+        articleDB = dbHelper.getReadableDatabase();
+        cursor = com.example.icyfillup.newsapp.utilities.DatabaseUtils.getAllArticles(articleDB);
+
+        adapter = new NewsApiAdapter(this, cursor);
+        recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        articleDB.close();
+        cursor.close();
     }
 
     @Override
@@ -62,68 +81,71 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int ItemSelectedId = item.getItemId();
-        if(ItemSelectedId == R.id.action_search)
-        {
-            adapter.setNewsArticles(null);
-            new FetchNewsTask().execute("hello");
+        if (ItemSelectedId == R.id.action_search) {
+
+            //NOTE: this placeHolderBundle variable has no purpose for the program.
+            //      this is use to make sure that the loaderManager does not pass in a null bundle set by the programmer
+            //      the usage is to distinguish programmer set bundle and framework set bundle
+            Bundle placeHolderBundle = new Bundle();
+            LoaderManager loaderManager = getSupportLoaderManager();
+            Loader<Void> NewAppSearchLoader = loaderManager.getLoader(NEWS_APP_LOADER_ID);
+            //Loader<ArrayList<NewsItem>> NewAppSearchLoader = loaderManager.getLoader(NEWS_APP_LOADER_ID);
+
+            if (NewAppSearchLoader == null) {
+                loaderManager.initLoader(NEWS_APP_LOADER_ID, placeHolderBundle, this);
+            } else {
+                loaderManager.restartLoader(NEWS_APP_LOADER_ID, placeHolderBundle, this);
+            }
+
         }
         return super.onOptionsItemSelected(item);
     }
 
+    // NOTE: Open the url link on the browner
     @Override
-    public void onItemClick(URL UrlLink){
+    public void onItemClick(URL UrlLink) {
         Uri UriLink = Uri.parse(UrlLink.toString());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, UriLink);
 
-        if(intent.resolveActivity(getPackageManager()) != null)
-        {
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
     }
 
-    class FetchNewsTask extends AsyncTask<String, Void, ArrayList<NewsItem>>
-    {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected ArrayList<NewsItem> doInBackground(String... strings) {
-            String SearchQuery = strings[0];
-            URL NewsApiUrl = NetworkUtils.buildUrl(SearchQuery);
-
-            ArrayList<NewsItem> NewsArticles = null;
-
-            String JsonNewsApiResponse = null;
-            try
-            {
-                JsonNewsApiResponse = NetworkUtils.getResponseFromHttpUrl(NewsApiUrl);
-                NewsArticles = NetworkUtils.getNewsItemsFromJson(JsonNewsApiResponse);
-                Log.d(TAG, "doInBackground: " + JsonNewsApiResponse);
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-            catch(JSONException e)
-            {
-                e.printStackTrace();
-            };
-            return NewsArticles;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<NewsItem> NewsArticles) {
-            progressBar.setVisibility(View.INVISIBLE);
-            if(NewsArticles != null && !NewsArticles.isEmpty())
-            {
-                adapter.setNewsArticles(NewsArticles);
+    @Override
+    public Loader<Void> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<Void>(this) {
+            @Override
+            protected void onStartLoading() {
+                if (args == null) {
+                    return;
+                }
+                progressBar.setVisibility(View.VISIBLE);
+                forceLoad();
             }
 
-            super.onPostExecute(NewsArticles);
-        }
+            @Override
+            public Void loadInBackground() {
+                RefreshArticles.refreshArticles(MainActivity.this);
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Void> loader, Void __) {
+        progressBar.setVisibility(View.INVISIBLE);
+        articleDB = new ArticleDbHelper(MainActivity.this).getReadableDatabase();
+        cursor = DatabaseUtils.getAllArticles(articleDB);
+
+        adapter = new NewsApiAdapter(this, cursor);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Void> loader) {
+
     }
 }
