@@ -1,9 +1,12 @@
 package com.example.icyfillup.newsapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -48,18 +51,25 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
         recyclerView.setHasFixedSize(true);
 
-        ScheduleUtils.scheduleRefresh(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isFirst = prefs.getBoolean("isfirst", true);
+        if(isFirst)
+        {
+            load();
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isfirst", false);
+            editor.commit();
+        }
 
-        getSupportLoaderManager().initLoader(NEWS_APP_LOADER_ID, null, this);
+        ScheduleUtils.scheduleRefresh(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        ArticleDbHelper dbHelper = new ArticleDbHelper(this);
-        articleDB = dbHelper.getReadableDatabase();
-        cursor = com.example.icyfillup.newsapp.utilities.DatabaseUtils.getAllArticles(articleDB);
+        articleDB = new ArticleDbHelper(this).getReadableDatabase();
+        cursor = DatabaseUtils.getAllArticles(articleDB);
 
         adapter = new NewsApiAdapter(this, cursor);
         recyclerView.setAdapter(adapter);
@@ -86,17 +96,7 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
             //NOTE: this placeHolderBundle variable has no purpose for the program.
             //      this is use to make sure that the loaderManager does not pass in a null bundle set by the programmer
             //      the usage is to distinguish programmer set bundle and framework set bundle
-            Bundle placeHolderBundle = new Bundle();
-            LoaderManager loaderManager = getSupportLoaderManager();
-            Loader<Void> NewAppSearchLoader = loaderManager.getLoader(NEWS_APP_LOADER_ID);
-            //Loader<ArrayList<NewsItem>> NewAppSearchLoader = loaderManager.getLoader(NEWS_APP_LOADER_ID);
-
-            if (NewAppSearchLoader == null) {
-                loaderManager.initLoader(NEWS_APP_LOADER_ID, placeHolderBundle, this);
-            } else {
-                loaderManager.restartLoader(NEWS_APP_LOADER_ID, placeHolderBundle, this);
-            }
-
+            load();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -147,5 +147,13 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
     @Override
     public void onLoaderReset(Loader<Void> loader) {
 
+    }
+
+    public void load()
+    {
+        Bundle placeHolderBundle = new Bundle();
+        LoaderManager loaderManager = getSupportLoaderManager();
+
+        loaderManager.restartLoader(NEWS_APP_LOADER_ID, placeHolderBundle, this).forceLoad();
     }
 }
