@@ -6,6 +6,7 @@
     android:orientation="horizontal"
     android:weightSum="1">
 
+    <!--NOTE: the layout_weight controls the ratio of space the layout can occupied in the "super" layout-->
     <LinearLayout
         android:layout_width="0dip"
         android:layout_height="match_parent"

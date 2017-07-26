@@ -65,6 +65,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         Log.d("onBindViewHolder:", thumbUrl);
         if(thumbUrl != null)
         {
+            // display the thumbnail image in the view
             Picasso.with(context).load(thumbUrl).into(holder.NewsImg);
         }
 
@@ -73,16 +74,6 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
     @Override
     public int getItemCount() {
         return cursor.getCount();
-    }
-
-    public void swapCursor(Cursor newCursor) {
-        // Always close the previous mCursor first
-        if (cursor != null) cursor.close();
-        cursor = newCursor;
-        if (newCursor != null) {
-            // Force the RecyclerView to refresh
-            this.notifyDataSetChanged();
-        }
     }
 
     class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -105,6 +96,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         @Override
         public void onClick(View view)
         {
+            // retrives the clicked article's url and sends it to the OnClickListener.onItemClick
             int index = getAdapterPosition();
             cursor.moveToPosition(index);
             String articleUrl = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_URL));

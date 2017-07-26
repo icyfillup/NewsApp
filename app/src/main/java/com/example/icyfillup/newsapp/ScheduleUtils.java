@@ -21,6 +21,7 @@ public class ScheduleUtils {
     private static final String SCHEDULE_ARTICLES_TAG = "schedule_article_tag";
     private static boolean isInitialized;
 
+    //schedules when the app should updates the news article's database.
     synchronized public static void scheduleRefresh(@NonNull final Context context)
     {
         // note: make sure that this task is init once.
@@ -32,6 +33,7 @@ public class ScheduleUtils {
         Driver driver = new GooglePlayDriver(context);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
 
+        //setup the job state
         Job constraintReminderJob = dispatcher.newJobBuilder()
                 .setService(UpdateActiclesFirebaseJobService.class)
                 .setTag(SCHEDULE_ARTICLES_TAG)

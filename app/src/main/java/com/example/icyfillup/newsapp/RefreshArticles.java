@@ -2,7 +2,6 @@ package com.example.icyfillup.newsapp;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.icyfillup.newsapp.data.ArticleContract;
@@ -24,6 +23,7 @@ public class RefreshArticles
 {
     private static final String TAG = RefreshArticles.class.getSimpleName();
 
+    // deletes the news articles what is currently in the db and fill it up with new news articles
     public static void refreshArticles(Context context)
     {
         SQLiteDatabase articleDB = new ArticleDbHelper(context).getWritableDatabase();

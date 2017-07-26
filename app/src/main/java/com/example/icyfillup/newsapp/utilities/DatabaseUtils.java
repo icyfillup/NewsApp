@@ -45,6 +45,10 @@ public class DatabaseUtils
 
             db.setTransactionSuccessful();
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         finally
         {
             db.endTransaction();

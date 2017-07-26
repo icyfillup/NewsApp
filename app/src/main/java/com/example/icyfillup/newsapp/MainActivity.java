@@ -51,16 +51,20 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
         recyclerView.setHasFixedSize(true);
 
+        // checks if the android device has this apps installed.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isFirst = prefs.getBoolean("isfirst", true);
         if(isFirst)
         {
+            // load the loading manager and add a "isfirst" boolean flag to the sharedPreferences to track the app
+            // if the current use of the app is from a first install or not
             load();
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("isfirst", false);
             editor.commit();
         }
 
+        // start the timer to refresh and update news articles
         ScheduleUtils.scheduleRefresh(this);
     }
 
@@ -92,10 +96,6 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
     public boolean onOptionsItemSelected(MenuItem item) {
         int ItemSelectedId = item.getItemId();
         if (ItemSelectedId == R.id.action_search) {
-
-            //NOTE: this placeHolderBundle variable has no purpose for the program.
-            //      this is use to make sure that the loaderManager does not pass in a null bundle set by the programmer
-            //      the usage is to distinguish programmer set bundle and framework set bundle
             load();
         }
         return super.onOptionsItemSelected(item);
@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
     @Override
     public void onLoadFinished(Loader<Void> loader, Void __) {
+        // notify the adapter of new news articles in the database.
         progressBar.setVisibility(View.INVISIBLE);
         articleDB = new ArticleDbHelper(MainActivity.this).getReadableDatabase();
         cursor = DatabaseUtils.getAllArticles(articleDB);
@@ -151,6 +152,10 @@ public class MainActivity extends AppCompatActivity implements NewsApiAdapter.Op
 
     public void load()
     {
+        //NOTE: this placeHolderBundle variable has no purpose for the program.
+        //      this is use to make sure that the loaderManager does not pass in a null bundle set by the programmer
+        //      the usage is to distinguish programmer's set bundle and framework's set bundle
+
         Bundle placeHolderBundle = new Bundle();
         LoaderManager loaderManager = getSupportLoaderManager();
 

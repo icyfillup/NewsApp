@@ -98,6 +98,7 @@ public class NetworkUtils
 
         ArrayList<NewsItem> Result = new ArrayList<NewsItem>();
 
+        // make string JSON into actual json
         JSONObject NewsItemsJson = new JSONObject(NewsItemsFromString);
 
         if(NewsItemsJson.has(NIA_STATUS))
@@ -116,9 +117,11 @@ public class NetworkUtils
             }
         }
 
+        // get list of articles from the json file
         JSONArray ArticlesJSON = NewsItemsJson.getJSONArray(NIA_ARTICLES);
         int NumOfArticles = ArticlesJSON.length();
 
+        //iterate through each article to get certain news information
         for(int i = 0; i < NumOfArticles; i++)
         {
             JSONObject Article = ArticlesJSON.getJSONObject(i);
