@@ -13,4 +13,5 @@ public class ArticleContract implements BaseColumns
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_URL = "url";
+    public static final String COLUMN_THUMB_URL = "thumburl";
 }

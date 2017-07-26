@@ -11,14 +11,32 @@ import java.net.URL;
 public class NewsItem {
     private String Title;
     private String Description;
-    private URL url;
     private String date;
+    private URL url;
+    private String thumbUrl;
+
+
+    public NewsItem(String Title, String Description, String Date, URL url, String thumbUrl) {
+        this.Title = Title;
+        this.Description = Description;
+        this.url = url;
+        this.date = Date;
+        this.thumbUrl = thumbUrl;
+    }
 
     public NewsItem(String Title, String Description, String Date, URL url) {
         this.Title = Title;
         this.Description = Description;
         this.url = url;
         this.date = Date;
+    }
+
+    public String getThumbUrl() {
+        return thumbUrl;
+    }
+
+    public void setThumbUrl(String thumbUrl) {
+        this.thumbUrl = thumbUrl;
     }
 
     public String getDate() {

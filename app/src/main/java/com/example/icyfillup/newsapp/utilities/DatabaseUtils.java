@@ -39,6 +39,7 @@ public class DatabaseUtils
                 cv.put(ArticleContract.COLUMN_DESCRIPTION, story.getDescription());
                 cv.put(ArticleContract.COLUMN_DATE, story.getDate());
                 cv.put(ArticleContract.COLUMN_URL, story.getUrl().toString());
+                cv.put(ArticleContract.COLUMN_THUMB_URL, story.getThumbUrl());
                 db.insert(ArticleContract.TABLE_NAME, null, cv);
             }
 

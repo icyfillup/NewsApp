@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ArticleDbHelper extends SQLiteOpenHelper{
     private static final String DATABASE_NAME = "Articles.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public ArticleDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,7 +23,8 @@ public class ArticleDbHelper extends SQLiteOpenHelper{
                 + ArticleContract.COLUMN_TITLE + " TEXT NOT NULL,"
                 + ArticleContract.COLUMN_DESCRIPTION + " TEXT NOT NULL,"
                 + ArticleContract.COLUMN_DATE + " TEXT NOT NULL,"
-                + ArticleContract.COLUMN_URL + " TEXT NOT NULL);";
+                + ArticleContract.COLUMN_URL + " TEXT NOT NULL,"
+                + ArticleContract.COLUMN_THUMB_URL + " TEXT NOT NULL);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_ARTICLES_TABLE);
     }

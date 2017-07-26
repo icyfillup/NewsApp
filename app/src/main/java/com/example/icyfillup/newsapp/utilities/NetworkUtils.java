@@ -92,6 +92,8 @@ public class NetworkUtils
         final String NIA_TITLE = "title";
         final String NIA_DESCRIPTION = "description";
         final String NIA_TIME_AT = "publishedAt";
+        final String NIA_THUMB_URL = "urlToImage";
+        final String NIA_URL = "url";
 
 
         ArrayList<NewsItem> Result = new ArrayList<NewsItem>();
@@ -123,18 +125,18 @@ public class NetworkUtils
             String title = Article.getString(NIA_TITLE);
             String description = Article.getString(NIA_DESCRIPTION);
             String date = Article.getString(NIA_TIME_AT);
-
             URL url = null;
+            String thumbUrl = Article.getString(NIA_THUMB_URL);
 
             try
             {
-                url = new URL(Article.getString("url"));
+                url = new URL(Article.getString(NIA_URL));
             }catch(MalformedURLException e)
             {
                 e.printStackTrace();
             }
 
-            Result.add(new NewsItem(title, description, date, url));
+            Result.add(new NewsItem(title, description, date, url, thumbUrl));
         }
         return Result;
     }

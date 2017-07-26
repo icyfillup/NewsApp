@@ -2,19 +2,19 @@ package com.example.icyfillup.newsapp;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.sip.SipAudioCall;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.icyfillup.newsapp.data.ArticleContract;
+import com.squareup.picasso.Picasso;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by icyfillup on 6/27/2017.
@@ -24,6 +24,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
 
     private OpenUrlLinkToBrowser OnClickListener;
     private Cursor cursor;
+    private Context context;
 
     public NewsApiAdapter(OpenUrlLinkToBrowser Listener, Cursor cursor) {
         OnClickListener = Listener;
@@ -37,7 +38,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
 
     @Override
     public NewsApiAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
+        context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
         View view = inflater.inflate(R.layout.news_api, viewGroup, shouldAttachToParentImmediately);
@@ -55,10 +56,18 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
         String title = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_TITLE));
         String description = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_DESCRIPTION));
         String date = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_DATE));
+        String thumbUrl = cursor.getString(cursor.getColumnIndex(ArticleContract.COLUMN_THUMB_URL));
 
         holder.NewsTitle.setText(title);
         holder.NewsDescription.setText(description);
         holder.NewsTime.setText(date);
+
+        Log.d("onBindViewHolder:", thumbUrl);
+        if(thumbUrl != null)
+        {
+            Picasso.with(context).load(thumbUrl).into(holder.NewsImg);
+        }
+
     }
 
     @Override
@@ -77,9 +86,10 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
     }
 
     class NewsApiAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        final public TextView NewsTitle;
-        final public TextView NewsDescription;
-        final public TextView NewsTime;
+        TextView NewsTitle;
+        TextView NewsDescription;
+        TextView NewsTime;
+        ImageView NewsImg;
 
 
         public NewsApiAdapterViewHolder(View itemView) {
@@ -88,6 +98,7 @@ public class NewsApiAdapter extends RecyclerView.Adapter<NewsApiAdapter.NewsApiA
             NewsTitle = (TextView) itemView.findViewById(R.id.news_title);
             NewsDescription = (TextView) itemView.findViewById(R.id.news_description);
             NewsTime = (TextView) itemView.findViewById(R.id.news_time);
+            NewsImg = (ImageView) itemView.findViewById(R.id.news_img);
             itemView.setOnClickListener(this);
         }
 

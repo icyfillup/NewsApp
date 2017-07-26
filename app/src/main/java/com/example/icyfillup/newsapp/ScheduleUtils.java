@@ -16,8 +16,8 @@ import com.firebase.jobdispatcher.Trigger;
  */
 
 public class ScheduleUtils {
-    private static final int SCHEDULE_INTERVAL_SECOND = 5;
-    private static final int FLEXTIME_SCHEDULE_INTERVAL_SECOND = 5;
+    private static final int SCHEDULE_INTERVAL_SECOND = 60;
+    private static final int FLEXTIME_SCHEDULE_INTERVAL_SECOND = 30;
     private static final String SCHEDULE_ARTICLES_TAG = "schedule_article_tag";
     private static boolean isInitialized;
 
